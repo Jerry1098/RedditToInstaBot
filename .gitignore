@@ -1,3 +1,6 @@
 getRedditImages/client_secrets.json
 getRedditImages/venv
-getRedditImages/.vscode/settings.json
+getRedditImages/.env
+getRedditImages/.idea
+getRedditImages/__pycache__
+getRedditImages/.vscode
