@@ -5,3 +5,4 @@ getRedditImages/.idea
 getRedditImages/__pycache__
 getRedditImages/.vscode
 .env
+.envReddit

@@ -15,6 +15,8 @@ db_username = os.getenv('DB_USERNAME')
 db_password = os.getenv('DB_PASSWORD')
 db_database = os.getenv('DB_DATABASE')
 
+print(db_hostname, db_username, db_password, db_database)
+
 reddit_client_id = os.getenv('REDDIT_CLIENT_ID')
 reddit_client_secret = os.getenv('REDDIT_CLIENT_SECRET')
 reddit_useragent = os.getenv('REDDIT_USERAGENT')
@@ -82,8 +84,7 @@ while True:
     to_upload_information = []
     already_posted_list = []
     for submission in subreddit.top('day', limit=12):
-        print(submission.url)
-        if not db.is_already_posted(submission.id) or True:
+        if not db.is_already_posted(submission.id):
             try:
                 download_ulr = submission.url
                 if 'imgur' in submission.url and not (submission.url.endswith('.jpg') or submission.url.endswith('.png')):

@@ -1,16 +1,39 @@
 version: "3.9"
 
 services:
-  getRedditImages:
+  get_reddit_images:
     build: ./getRedditImages
     restart: always
     links:
       - "db:db"
+    volumes:
+      - images:/usr/src/app/images
+    environment:
+      - DB_USERNAME=${POSTGRES_USER}
+      - DB_PASSWORD=${POSTGRES_PASSWORD}
+      - DB_DATABASE=${POSTGRES_DB}
+    depends_on: 
+      - db
   db:
     build: ./db
     restart: always
+    ports:
+      - "5532:5432"
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    env_file: 
+      - .env
   uploadInstaImages:
     build: ./uploadInstaImages
     restart: always
     links:
       - "db:db"
+    environment:
+      - PGUSER=${POSTGRES_USER}
+      - PGPASSWORD=${POSTGRES_PASSWORD}
+      - PGDATABASE=${POSTGRES_DB}
+      - PGHOST=db
+      - PGPORT=5432
+volumes:
+  images:
+  db-data:
