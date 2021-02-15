@@ -24,6 +24,8 @@ reddit_subreddit = os.getenv('REDDIT_SUBREDDIT')
 
 img_dir = os.getenv('IMG_DIR')
 
+os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = os.path.abspath('./client_secrets.json')
+
 if not os.path.isdir(img_dir):
     os.makedirs(img_dir)
 
