@@ -14,8 +14,9 @@ db_hostname = os.getenv('DB_HOSTNAME')
 db_username = os.getenv('DB_USERNAME')
 db_password = os.getenv('DB_PASSWORD')
 db_database = os.getenv('DB_DATABASE')
+db_port = os.getenv('DB_PORT')
 
-print(db_hostname, db_username, db_password, db_database)
+print(db_hostname, db_username, db_password, db_database, db_port)
 
 reddit_client_id = os.getenv('REDDIT_CLIENT_ID')
 reddit_client_secret = os.getenv('REDDIT_CLIENT_SECRET')
@@ -68,7 +69,7 @@ def check_image_for_nsfw(image: Image):
     return True
 
 
-db = DB(db_hostname, db_username, db_password, db_database)
+db = DB(db_hostname, db_username, db_password, db_database, db_port)
 reddit = praw.Reddit(
     client_id=reddit_client_id,
     client_secret=reddit_client_secret,
@@ -112,3 +113,4 @@ while True:
 
     # sleep for 30 min
     time.sleep(1800)
+    break

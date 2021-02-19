@@ -9,25 +9,28 @@ services:
     volumes:
       - images:/usr/src/app/images
     environment:
+      - PYTHONUNBUFFERED=1
       - DB_USERNAME=${POSTGRES_USER}
       - DB_PASSWORD=${POSTGRES_PASSWORD}
       - DB_DATABASE=${POSTGRES_DB}
-    depends_on: 
+      - IMG_DIR=/usr/src/app/images
+      - DB_PORT=5432
+    env_file:
+      - .envReddit
+    depends_on:
       - db
   db:
     build: ./db
     restart: always
-    ports:
-      - "5532:5432"
     volumes:
       - db-data:/var/lib/postgresql/data
-    env_file: 
+    env_file:
       - .env
-  uploadInstaImages:
+    ports:
+      - 5432:5432
+  upload_insta_images:
     build: ./uploadInstaImages
     restart: always
-    links:
-      - "db:db"
     environment:
       - PGUSER=${POSTGRES_USER}
       - PGPASSWORD=${POSTGRES_PASSWORD}

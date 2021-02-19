@@ -6,14 +6,14 @@ class DB:
     DB_CONNECTION = None
     DB_CURSOR = None
 
-    def __init__(self, host, username, password, dbname):
+    def __init__(self, host, username, password, dbname, dbport):
         try:
             self.DB_CONNECTION = psycopg2.connect(
                 host=host,
                 user=username,
                 password=password,
                 dbname=dbname,
-                port=5532
+                port=dbport
             )
             self.DB_CURSOR = self.DB_CONNECTION.cursor()
         except:
