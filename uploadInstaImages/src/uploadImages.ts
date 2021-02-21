@@ -140,6 +140,7 @@ async function insertPostInPosts(
 (async () => {
   try {
     await login();
+    await db.connect();
   } catch (e) {
     console.log("Login Failed");
     // Sleep 1h to prevent login spamming from docker restarting container
@@ -148,10 +149,8 @@ async function insertPostInPosts(
   }
   while (true) {
     try {
-      await db.connect();
       const toUploadItem = await getToUploadItem();
       if (toUploadItem == undefined) {
-        await db.end();
         // sleep 5 minutes
         await sleep(300);
         continue;
@@ -190,7 +189,6 @@ async function insertPostInPosts(
         console.log(e);
         console.log("Failed to delete " + toUploadItem["filepath"]);
       }
-      await db.end();
       await sleep(300);
     } catch (e) {
       console.log(e.stack);

@@ -22,8 +22,6 @@ services:
       - REDDIT_USERNAME=${REDDIT_USERNAME}
       - REDDIT_PASSWORD=${REDDIT_PASSWORD}
       - REDDIT_SUBREDDIT=${REDDIT_SUBREDDIT}
-    env_file:
-      - .envReddit
     depends_on:
       - db
 

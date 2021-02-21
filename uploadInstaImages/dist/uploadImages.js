@@ -125,6 +125,7 @@ function insertPostInPosts(reddit_id, instagram_id, instagram_pk) {
 (() => __awaiter(void 0, void 0, void 0, function* () {
     try {
         yield login();
+        yield db.connect();
     }
     catch (e) {
         console.log("Login Failed");
@@ -133,10 +134,8 @@ function insertPostInPosts(reddit_id, instagram_id, instagram_pk) {
     }
     while (true) {
         try {
-            yield db.connect();
             const toUploadItem = yield getToUploadItem();
             if (toUploadItem == undefined) {
-                yield db.end();
                 yield sleep(300);
                 continue;
             }
@@ -161,7 +160,6 @@ function insertPostInPosts(reddit_id, instagram_id, instagram_pk) {
                 console.log(e);
                 console.log("Failed to delete " + toUploadItem["filepath"]);
             }
-            yield db.end();
             yield sleep(300);
         }
         catch (e) {
