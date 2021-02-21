@@ -14,29 +14,50 @@ services:
       - DB_PASSWORD=${POSTGRES_PASSWORD}
       - DB_DATABASE=${POSTGRES_DB}
       - IMG_DIR=/usr/src/app/images
-      - DB_PORT=5432
+      - DB_PORT=${POSTGRES_PORT}
+      - DB_HOSTNAME=db
+      - REDDIT_CLIENT_ID=${REDDIT_CLIENT_ID}
+      - REDDIT_CLIENT_SECRET=${REDDIT_CLIENT_SECRET}
+      - REDDIT_USERAGENT=${REDDIT_USERAGENT}
+      - REDDIT_USERNAME=${REDDIT_USERNAME}
+      - REDDIT_PASSWORD=${REDDIT_PASSWORD}
+      - REDDIT_SUBREDDIT=${REDDIT_SUBREDDIT}
     env_file:
       - .envReddit
     depends_on:
       - db
+
   db:
     build: ./db
     restart: always
     volumes:
       - db-data:/var/lib/postgresql/data
-    env_file:
-      - .env
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_PORT=${POSTGRES_PORT}
     ports:
-      - 5432:5432
+      - ${POSTGRES_PORT}:${POSTGRES_PORT}
+    command: -p ${POSTGRES_PORT}
+
   upload_insta_images:
     build: ./uploadInstaImages
     restart: always
+    volumes:
+      - images:/usr/src/app/images
+      - node-data:/usr/src/app/data
     environment:
       - PGUSER=${POSTGRES_USER}
       - PGPASSWORD=${POSTGRES_PASSWORD}
       - PGDATABASE=${POSTGRES_DB}
       - PGHOST=db
-      - PGPORT=5432
+      - PGPORT=${POSTGRES_PORT}
+      - INSTAGRAM_USERNAME=${INSTAGRAM_USERNAME}
+      - INSTAGRAM_PASSWORD=${INSTAGRAM_PASSWORD}
+    depends_on:
+      - db
 volumes:
   images:
   db-data:
+  node-data:

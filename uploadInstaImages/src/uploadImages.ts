@@ -1,31 +1,45 @@
-import { IgApiClient, IgLoginRequiredError } from "instagram-private-api";
+import {
+  IgApiClient,
+  IgLoginRequiredError,
+  MediaRepositoryConfigureResponseRootObject,
+} from "instagram-private-api";
 import { existsSync, mkdirSync, readFile, unlink, writeFile } from "fs";
 import { promisify } from "util";
 import { Client } from "pg";
-
-let ref, urlSegmentToInstagramId, instagramIdToUrlSegment;
-ref = require("instagram-id-to-url-segment");
 
 const readFileAsync = promisify(readFile);
 const writeFileAsync = promisify(writeFile);
 const unlinkAsync = promisify(unlink);
 
-instagramIdToUrlSegment = ref.instagramIdToUrlSegment;
-urlSegmentToInstagramId = ref.urlSegmentToInstagramId;
+// const db = new Client({
+//   user: "postgresUser",
+//   host: "localhost",
+//   database: "redditToInstaBot",
+//   password: "******",
+//   port: 5432,
+// });
 
-const db = new Client({
-  user: "postgresUser",
-  host: "localhost",
-  database: "redditToInstaBot",
-  password: "6969696966969696696966969696",
-  port: 5532,
-});
+// read parameters from env
+const db = new Client();
 
 const ig = new IgApiClient();
+// @ts-ignore
 let currentInstaUser = null;
 
-const username = "galaxy_smg950f";
-const password = "Jeremias00";
+// process.env.INSTAGRAM_USERNAME = "galaxy_smg950f";
+// process.env.INSTAGRAM_PASSWORD = "*****";
+
+const username = process.env.INSTAGRAM_USERNAME as string;
+const password = process.env.INSTAGRAM_PASSWORD as string;
+
+if (!(username != undefined && password != undefined)) {
+  const errorString =
+    "Enviroment vars not set correctly\nINSTAGRAM_USERNAME: " +
+    username +
+    "\nINSTAGRAM_PASSWORD: " +
+    password;
+  throw new Error(errorString);
+}
 
 const sessionPath = "./data";
 const sessionFilename = "/session.json";
@@ -47,10 +61,7 @@ async function sessionExists() {
 
 async function sessionLoad() {
   let toReturn = await readFileAsync(sessionPath + sessionFilename, "utf8");
-  console.log(toReturn);
-  toReturn = JSON.parse(toReturn);
-  console.log(toReturn);
-  return toReturn;
+  return JSON.parse(toReturn);
 }
 
 async function login() {
@@ -74,6 +85,7 @@ async function login() {
       currentInstaUser = await ig.account.currentUser();
     } else {
       console.log(e.stack);
+      throw new Error("Something went wrong with Instagram");
     }
   }
 }
@@ -96,7 +108,7 @@ async function uploadAndCommentPhoto(
 ) {
   const resUpload = await uploadPhoto(filepath, caption);
   const resComment = await commentPhoto(resUpload.media.pk, comment);
-  return [resComment, resUpload];
+  return [resUpload, resComment];
 }
 
 function sleep(sec: number) {
@@ -127,7 +139,7 @@ async function insertPostInPosts(
 
 (async () => {
   try {
-    // await login();
+    await login();
   } catch (e) {
     console.log("Login Failed");
     // Sleep 1h to prevent login spamming from docker restarting container
@@ -145,12 +157,44 @@ async function insertPostInPosts(
         continue;
       }
 
-      // console.log(await uploadAndCommentPhoto('images/test.jpg', 'tolle caption', 'toller kommentar'));
+      let instagram_id = "";
+      let instagram_pk = "";
+
+      try {
+        const uploadAndCommentResponse = await uploadAndCommentPhoto(
+          "images/" + toUploadItem["filepath"],
+          toUploadItem["caption"],
+          toUploadItem["comment"]
+        );
+
+        const uploadResponse = uploadAndCommentResponse[0] as MediaRepositoryConfigureResponseRootObject;
+        // const commentResponse = uploadAndCommentResponse[1];
+
+        instagram_pk = uploadResponse["media"]["pk"];
+        instagram_id = uploadResponse["media"]["id"];
+      } catch (e) {
+        console.log("Upload with id: " + toUploadItem["reddit_id"] + " failed");
+        console.log(e);
+      }
+
+      await insertPostInPosts(
+        toUploadItem["reddit_id"],
+        instagram_id,
+        instagram_pk
+      );
+      await deleteToUploadItem(toUploadItem["reddit_id"]);
+
+      try {
+        await unlinkAsync("images/" + toUploadItem["filepath"]);
+      } catch (e) {
+        console.log(e);
+        console.log("Failed to delete " + toUploadItem["filepath"]);
+      }
       await db.end();
-      break;
+      await sleep(300);
     } catch (e) {
       console.log(e.stack);
-      break;
+      await sleep(3600);
     }
   }
 })();

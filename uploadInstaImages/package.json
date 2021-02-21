@@ -1,0 +1,22 @@
+{
+  "name": "uploadinstaimages",
+  "version": "1.0.0",
+  "description": "",
+  "main": "uploadImages.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "watch": "tsc -w",
+    "start": "node dist/uploadImages.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "instagram-private-api": "^1.43.3",
+    "pg": "^8.5.1"
+  },
+  "devDependencies": {
+    "@types/luxon": "^1.26.0",
+    "@types/pg": "^7.14.10",
+    "ts-node": "^9.1.1"
+  }
+}
